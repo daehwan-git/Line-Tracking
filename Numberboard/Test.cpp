@@ -252,7 +252,7 @@ Mat CNumberboardDlg::TestdrawLine(Mat img_input, string dir)
 
 	//hconcat(left_res, right_res, img_input);
 
-	/*img_input.copyTo(output_img);
+	img_input.copyTo(output_img);
 	
 	poly_points.push_back(Rightlane[0]);
 	poly_points.push_back(Leftlane[0]);
@@ -261,7 +261,7 @@ Mat CNumberboardDlg::TestdrawLine(Mat img_input, string dir)
 
 	fillConvexPoly(output_img, poly_points, Scalar(0, 230, 0, 80), LINE_AA, 0);
 	addWeighted(output_img, 0.3, img_input, 0.7, 0, img_input);
-	*/
+	
 
 	line(img_input, Leftlane[0], Leftlane[1], Scalar(0, 255, 0, 80), 5, LINE_AA);
 	line(img_input, Rightlane[0], Rightlane[1], Scalar(0, 255, 0, 80), 5, LINE_AA);

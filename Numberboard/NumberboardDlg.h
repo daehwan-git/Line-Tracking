@@ -12,11 +12,6 @@ using namespace cv;
 using namespace std;
 using namespace cv::dnn;
 
-// YOLO 모델 파일 경로
-const string modelConfiguration = "C:/Users/82108/source/repos/Numberboard/yolov3.cfg";
-const string modelWeights = "C:/Users/82108/source/repos/Numberboard/yolov3.weights";
-const string classesFile = "C:/Users/82108/source/repos/Numberboard/coco.names";
-
 
 // CNumberboardDlg 대화 상자
 class CNumberboardDlg : public CDialogEx
@@ -158,8 +153,8 @@ public:
 	vector<Point> roiPoints;
 	
 	const float confidenceThreshold = 0.24f;
-	string yolo_cfg = "C:/Users/82108/source/repos/Numberboard/yolov4.cfg";
-	string yolo_weights = "C:/Users/82108/source/repos/Numberboard/yolov4.weights";
+	string yolo_cfg = "C:/Users/82108/source/repos/Numberboard/yolov3.cfg";
+	string yolo_weights = "C:/Users/82108/source/repos/Numberboard/yolov3.weights";
 	String classesFile = "C:/Users/82108/source/repos/Numberboard/coco.names";
 	void YOLO();
 	void processDetections(const vector<Mat>& outs, const Mat& img, const vector<string>& classes, float confThreshold, const string& targetClass);
@@ -183,6 +178,9 @@ public:
 	afx_msg void OnBnClickedButton17();
 
 
+
 	
 
+	afx_msg void OnBnClickedButton3();
 };
+

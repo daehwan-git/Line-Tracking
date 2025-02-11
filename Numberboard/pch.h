@@ -32,8 +32,6 @@
 #include <fstream>
 #include <algorithm>
 #include <afxwin.h>
-#include <sapi.h>	// TTS를 위한 헤더
-#include <sphelper.h> // TTS 도우미 헤더
 
 #endif //PCH_H
 

@@ -74,6 +74,7 @@ BEGIN_MESSAGE_MAP(CNumberboardDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_LOAD_IMAGE, &CNumberboardDlg::OnBnClickedButtonLoadImage)
 	ON_BN_CLICKED(IDC_BUTTON16, &CNumberboardDlg::OnBnClickedButton16)
 	ON_BN_CLICKED(IDC_BUTTON17, &CNumberboardDlg::OnBnClickedButton17)
+	ON_BN_CLICKED(IDC_BUTTON3, &CNumberboardDlg::OnBnClickedButton3)
 END_MESSAGE_MAP()
 
 
@@ -441,7 +442,13 @@ void CNumberboardDlg::OnBnClickedButton16()
 
 void CNumberboardDlg::OnBnClickedButton17()
 {
-	Test();
+	LineDetection();
 }
 
 
+
+
+void CNumberboardDlg::OnBnClickedButton3()
+{
+	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
+}

@@ -229,11 +229,12 @@ Mat CNumberboardDlg::DetectMaskRegion(Mat img_edges)
 	Mat mask = Mat::zeros(height, width, CV_8UC1);
 
 	cv::Point points[4]{
-	cv::Point((width * (1 - trap_top_width)) / 2 + 30, height - height * trap_height - 20),   // 왼쪽 위 모서리
+	cv::Point((width * (1 - trap_top_width)) / 2 + 10, height - height * trap_height - 20),   // 왼쪽 위 모서리
 	cv::Point(width - (width * (1 - trap_top_width)) / 2 + 30, height - height * trap_height - 20), // 오른쪽 위 모서리
 	cv::Point(width - (width * (1 - trap_bottom_width)) / 2 + maskval2, height - maskval1), // 오른쪽 아래 모서리
-	cv::Point((width * (1 - trap_bottom_width)) / 2 + 30, height - 100)  // 왼쪽 아래 모서리
+	cv::Point((width * (1 - trap_bottom_width)) / 2 + 5, height - 100)  // 왼쪽 아래 모서리
 	};
+
 	
 	cv::fillConvexPoly(mask, points, 4, Scalar(255, 0, 0));
 
@@ -540,6 +541,10 @@ void CNumberboardDlg::LineDetection()
 	string wor = "Worning!!";
 	char* outText = nullptr;
 	tesseract::TessBaseAPI* api;
+	m_bRun = false;
+	m_bStop = false;
+	m_pThread4 = AfxBeginThread(RunThread_YOLO, this);
+	Sleep(1000);
 
 	CString str = _T("ALL files(*.*)|*.*|");
 	CFileDialog dlg(TRUE, _T("*.dat"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, str, this);
@@ -566,57 +571,63 @@ void CNumberboardDlg::LineDetection()
 			if (img_frame.empty())
 				continue;
 
-			cvtColor(img_frame, gray, COLOR_BGR2GRAY);
-			GaussianBlur(gray, Gaus, Size(3, 3), 0);
-			Canny(Gaus, img_edges, 150, 250);
 
 
 			//흰색과 노란색만 남도록 필터링 한다.
-			img_filter = filter_colors(img_frame);
+			//img_filter = filter_colors(img_frame);
 			//imshow("src", img_filter);
 
 			//회색 이미지로 변환 시킨다.
-			cvtColor(img_filter, gray, COLOR_BGR2GRAY);
+			//cvtColor(img_filter, gray, COLOR_BGR2GRAY);
 			//imshow("gray", gray);
 
 			// 노이즈 제거
 			
-			GaussianBlur(gray, Gaus, Size(3, 3), 0);
+			GaussianBlur(img_frame, Gaus, Size(3, 3), 0);
 
 			// 노이즈 제거 1
-			Canny(Gaus, img_edges, 150, 250);
-			//imshow("img_edges", img_edges);
+			Canny(Gaus, img_edges, 100, 150);
+			imshow("img_edges", img_edges);
 
 			//검출 영역을 MASK 처리 한다.
-			img_mask = DetectMaskRegion(img_edges);
+			img_mask = DetectMaskRegion1(img_edges);
 			//imshow("img_mask", img_mask);
 
 
 			//직선을 검출한다.
 			lines = houghLines(img_mask);
 
-			if (lines.size() > 0)
+			m_bRun = true;
+			if (m_bRun)
 			{
-				//직선을 기울기 별로 정렬한 후 좌우 선을 분류한다.
-				separated_lines = separateLine(img_mask, lines);
 
-				//가장 적합한 선을 찾는다.
-				lane = regression(separated_lines, img_frame);
+				float confThreshold = 0.5;
 
-				//두 선이 교차하는 지점의 위치를 통해 진행방향을 예측한다.
-				dir = predictDir();
+				processDetections(outs, img_frame, classes, confThreshold, "car");
+				if (lines.size() > 0)
+				{
+					//직선을 기울기 별로 정렬한 후 좌우 선을 분류한다.
+					separated_lines = separateLine(img_mask, lines);
 
-				//최종 차선을 출력한다.
-				img_frame = drawLine(img_frame, lane, dir);
+					//가장 적합한 선을 찾는다.
+					lane = regression(separated_lines, img_frame);
 
-				//글자 인식 및 결과를 출력한다.
-				//m_pThread = AfxBeginThread(RunThread, new STPARAM(this, outText));
-					
-			}
-			else
-			{
-				//차선 밖으로 나갈 경우(차선이 인식되지 않을 경우) 경고 알림을 띄운다.
-				putText(img_frame, wor, Point(50, 50), FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 255), 2);
+					//두 선이 교차하는 지점의 위치를 통해 진행방향을 예측한다.
+					dir = predictDir();
+
+					//최종 차선을 출력한다.
+					img_frame = drawLine(img_frame, lane, dir);
+
+
+					//글자 인식 및 결과를 출력한다.
+					//m_pThread = AfxBeginThread(RunThread, new STPARAM(this, outText));
+
+				}
+				else
+				{
+					//차선 밖으로 나갈 경우(차선이 인식되지 않을 경우) 경고 알림을 띄운다.
+					putText(img_frame, wor, Point(50, 50), FONT_HERSHEY_SIMPLEX, 1, Scalar(0, 0, 255), 2);
+				}
 			}
 
 			imshow("result", img_frame);
